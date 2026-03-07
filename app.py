@@ -5,6 +5,7 @@ Streamlit app for probabilistic hosting capacity analysis.
 import streamlit as st
 import pandas as pd
 import numpy as np
+import os
 import plotly.graph_objects as go
 from analysis import screen_connection
 
@@ -22,7 +23,8 @@ st.set_page_config(
 # ---------------------------------------------------------------------------
 @st.cache_data
 def load_substations():
-    df = pd.read_csv("data/substations.csv")
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    df = pd.read_csv(os.path.join(base_dir, "data", "substations.csv"))
     # Approximate peak and median demand (not in the map data, but needed by the model)
     df["peak_demand_mw"] = df["winter_evening_p50_mw"] * 1.2
     df["median_demand_mw"] = (df["summer_midday_p50_mw"] + df["winter_evening_p50_mw"]) / 2
