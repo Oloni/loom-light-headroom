@@ -56,9 +56,17 @@ def check_password():
             st.session_state["authenticated"] = True
             st.session_state["user_name"] = name
             st.session_state["user_email"] = email
+
+            # Log signin
+            import requests as req
+            webhook = st.secrets.get("signin_webhook", "")
+            if webhook:
+                try:
+                    req.post(webhook, json={"name": name, "email": email}, timeout=3)
+                except Exception:
+                    pass  # Don't block signin if logging fails
+
             st.rerun()
-        else:
-            st.error("Incorrect access code. Please check your invitation email.")
 
     return False
 
