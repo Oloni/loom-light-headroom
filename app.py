@@ -49,6 +49,9 @@ def check_password():
         password = st.text_input("Access code", type="password",
                                  help="Enter the access code from your invitation email.")
         submit = st.button("Sign in", type="primary", use_container_width=True)
+        st.caption("By signing in you agree that we store your name and email to manage "
+                   "access to this prototype. We won\u2019t share your data. "
+                   "Contact hello@loom-light.io to request deletion.")
 
     if submit:
         correct = st.secrets.get("access_code", "")
@@ -205,13 +208,20 @@ with tab_report:
 
     # --- Headroom gap callout ---
     gap_mw = hc["summer_midday_demand_mw"] - hc["published_gen_headroom_mw"]
+    abs_gap = abs(gap_mw)
+
     if gap_mw > 0:
-        gap_direction = "more"
-        gap_color = "#27ae60"
+        gap_note = (
+            f"This is <span style='color: #27ae60; font-weight: 700;'>{abs_gap:.1f} MW more</span> "
+            f"than the published headroom \u2014 suggesting potential untapped capacity, "
+            f"though operational constraints on this part of the network may account for part of the difference."
+        )
     else:
-        gap_direction = "less"
-        gap_color = "#e67e22"
-        gap_mw = abs(gap_mw)
+        gap_note = (
+            f"This is <span style='color: #e67e22; font-weight: 700;'>{abs_gap:.1f} MW less</span> "
+            f"than the published headroom. The gap may reflect real untapped headroom "
+            f"or operational constraints on this part of the network."
+        )
 
     st.markdown(
         f"""
@@ -219,13 +229,12 @@ with tab_report:
                     border-radius: 10px; padding: 18px 24px; margin-bottom: 20px; color: white;">
             <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em;
                         color: rgba(255,255,255,0.6); margin-bottom: 6px;">
-                What the published figure misses
+                Published headroom vs measured demand
             </div>
             <div style="font-size: 17px; line-height: 1.5;">
                 NGED publishes <b>{hc['published_gen_headroom_mw']:.1f} MW</b> of generation headroom.
-                But actual summer midday demand is <b>{hc['summer_midday_demand_mw']:.1f} MW</b> —
-                <span style="color: {gap_color}; font-weight: 700;">{gap_mw:.1f} MW {gap_direction}</span>
-                than the published figure suggests is available.
+                Actual summer midday demand is <b>{hc['summer_midday_demand_mw']:.1f} MW</b>.
+                {gap_note}
             </div>
         </div>
         """,
